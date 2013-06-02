@@ -5,25 +5,24 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class Kasa {
+public class CacheRegister {
 
-	public Proizvod izracunajCijenu(Proizvod proizvod) {
-		double ukupnaCijena = 0;
+	public Product izracunajCijenu(Product proizvod) {
+		double totalPrice = 0;
 
-		double cijena = saznajCijenu(proizvod.getBarKod())
-				* proizvod.getKolicina();
-		ukupnaCijena += cijena;
+		double price = getPriceForProduct(proizvod.getBarcode()) * proizvod.getQuantity();
+		totalPrice += price;
 
-		proizvod.postaviUkupnuCijenu(ukupnaCijena);
-		proizvod.postaviNaziv(saznajNaziv(proizvod.getBarKod()));
+		proizvod.setTotalPrice(totalPrice);
+		proizvod.setName(getNameForProduct(proizvod.getBarcode()));
 
 		return proizvod;
 	}
 
 	// TODO Refaktorisati
-	private String saznajNaziv(int barkod) {
+	private String getNameForProduct(int barcode) {
 		Connection connection = null;
-		String naziv = null;
+		String name = null;
 
 		try {
 
@@ -34,13 +33,13 @@ public class Kasa {
 
 			// Execute the SQL statement and get the results in a Resultset
 			ResultSet rs = stmt.executeQuery("select naziv from proizvodi where barkod='"
-							+ barkod + "'");
+							+ barcode + "'");
 
 			// Iterate through the ResultSet, displaying two values
 			// for each row using the getString method
 
 			while (rs.next()) {
-				naziv = rs.getString("naziv");
+				name = rs.getString("naziv");
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -51,10 +50,10 @@ public class Kasa {
 			Utilities.close(connection);
 		}
 
-		return naziv;
+		return name;
 	}
 
-	private double saznajCijenu(int barkodProizvoda) {
+	private double getPriceForProduct(int barkodProizvoda) {
 		Connection connection = null;
 
 		double cijena = 0;

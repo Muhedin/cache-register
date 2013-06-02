@@ -2,8 +2,11 @@ package kasa;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Database {
 	private static String connectionString = "jdbc:mysql://localhost:3306/pmfkasa";
@@ -34,7 +37,7 @@ public class Database {
 
 	}
 
-	public static void save(Proizvod p) {
+	public static void save(Product p) {
 
 		Connection connection = Database.getConnection();
 
@@ -42,14 +45,56 @@ public class Database {
 
 			Statement statement = connection.createStatement();
 			statement.executeUpdate("insert into proizvodi (barkod, cijena, naziv) values (" +
-					"'" + p.getBarKod() + "', " 
-					+ "'" + p.getCijena() + "', " 
-					+ "'" + p.dajNaziv() + "')");
+					"'" + p.getBarcode() + "', " 
+					+ "'" + p.getPrice() + "', " 
+					+ "'" + p.getName() + "')");
 			
 			
 		} catch (SQLException e) {
 			System.out.println("Nisam uspio sacuvati proizvod u bazu.");
 		}
 
+	}
+
+	public static List<Product> findAllProducts() {
+		List<Product> products = new ArrayList<Product>();
+		Product product;
+		
+		int barcode;
+		String name;
+		double price;
+		
+		Connection connection = null;
+
+		try {
+			connection = Database.getConnection();
+
+			// Create a Statement class to execute the SQL statement
+			Statement stmt = connection.createStatement();
+
+			// Execute the SQL statement and get the results in a Resultset
+			ResultSet rs = stmt.executeQuery("select * from proizvodi");
+
+			while (rs.next()) {
+				barcode = rs.getInt("barkod");
+				name = rs.getString("naziv");
+				price = rs.getDouble("cijena");
+				
+				product = new Product(barcode, name, price);
+				
+				products.add(product);
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			// Close the connection
+			Utilities.close(connection);
+		}
+		
+		System.out.println("Ucitali smo " + products.size() + " proizvoda");
+		return products;
 	}
 }

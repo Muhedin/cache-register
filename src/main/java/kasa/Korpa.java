@@ -5,15 +5,15 @@ import java.util.List;
 
 public class Korpa {
 	
-	private List<Proizvod> proizvodi = new ArrayList<Proizvod>();
+	private List<Product> proizvodi = new ArrayList<Product>();
 
 	//dodaje proizvod u korpu
-	public void dodajProizvod(Proizvod p) {
+	public void dodajProizvod(Product p) {
 		proizvodi.add(p);
 	}
 
 	//uzima proizvod iz korpe
-	public List<Proizvod> uzmiProizvode() {
+	public List<Product> uzmiProizvode() {
 		return proizvodi;
 	}
 

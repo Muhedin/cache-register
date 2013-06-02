@@ -1,7 +1,5 @@
 package kasa;
 
-import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -13,7 +11,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 public class CashierLayout extends VerticalLayout {
-	private final Kasa kasa = new Kasa();
+	private final CacheRegister kasa = new CacheRegister();
 
 	private double ukupnaCijena = 0;
 
@@ -72,11 +70,11 @@ public class CashierLayout extends VerticalLayout {
 					int barkod = Integer.valueOf(txtBarkod.getValue());
 					double kolicina = Double.valueOf(txtKolicina.getValue());
 
-					Proizvod proizvod = new Proizvod(barkod, kolicina);
+					Product proizvod = new Product(barkod, kolicina);
 
 					proizvod = kasa.izracunajCijenu(proizvod);
 
-					ukupnaCijena += proizvod.dajUkupnuCijenu();
+					ukupnaCijena += proizvod.getTotalPrice();
 
 					dodajUTabelu(proizvod);
 
@@ -123,11 +121,11 @@ public class CashierLayout extends VerticalLayout {
 		
 	}
 
-	private void dodajUTabelu(Proizvod proizvod) {
+	private void dodajUTabelu(Product proizvod) {
 
 		spisakProizvodaTable.addItem(
-				new Object[] { proizvod.getBarKod(), proizvod.dajNaziv(),
-						proizvod.getKolicina(), proizvod.dajUkupnuCijenu() },
+				new Object[] { proizvod.getBarcode(), proizvod.getName(),
+						proizvod.getQuantity(), proizvod.getTotalPrice() },
 				idProizvodaUTabeli++);
 
 		spisakProizvodaTable.refreshRowCache();
