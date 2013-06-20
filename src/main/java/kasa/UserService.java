@@ -38,7 +38,7 @@ public class UserService {
 			// for each row using the getString method
 
 			if (rs.next()) {
-				user = new User();
+				user = new User(username, password);
 				user.setUsername(username);
 				user.setAdmin(rs.getBoolean("admin"));
 			}

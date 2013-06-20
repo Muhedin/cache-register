@@ -7,7 +7,7 @@ public class Product {
 	private double totalPrice;
 	private String name;
 	
-	// single product price
+	// cijena jednog proizvoda
 	private double price;
 
 	// Konstruktor
@@ -16,6 +16,7 @@ public class Product {
 		this.quantity = quantity;
 	}
 	
+	//Konstuktor kojeg koristimo za unos podataka u bazu
 	public Product(int barcode, String name, double price) {
 		this.barcode = barcode;
 		this.name = name;

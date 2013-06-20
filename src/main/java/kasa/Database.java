@@ -8,6 +8,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.vaadin.ui.Notification;
+
 public class Database {
 	private static String connectionString = "jdbc:mysql://localhost:3306/pmfkasa";
 	private static String dbUsername = "kasir";
@@ -20,10 +22,8 @@ public class Database {
 
 			// Load the Driver class.
 			Class.forName("com.mysql.jdbc.Driver");
-			// If you are using any other database then load the right driver
-			// here.
 
-			// Create the connection using the static getConnection method
+			// Kreiramo konekciju koristeci staticku metodu getConnection
 			connection = DriverManager.getConnection(connectionString,
 					dbUsername, dbPassword);
 
@@ -37,21 +37,50 @@ public class Database {
 
 	}
 
-	public static void save(Product p) {
+	
+	//Metoda pomocu koje vrsimo unos kasira u bazu
+	public static void saveUser(User user) {
+		Connection connection = Database.getConnection();
+
+		try {
+			Statement statement = connection.createStatement();
+			String query = "insert into korisnici (ime, lozinka, admin) values (" +
+					"'" + user.getTxtCashierName() + "', " 
+					+ hash(user.getTxtPassword()) + ", "
+					+ "false)";
+			
+			System.out.println(query);
+			statement.executeUpdate(query);
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("Nisam uspio sacuvati proizvod u bazu.");
+		}
+		
+	}
+
+	
+	private static String hash(String password) {
+		return "sha1(\"" + password + "\")";
+	}
+
+
+	//Medota pomocu koje vrsimo unos proizvoda u bazu 
+	public static void saveProduct(Product p) {
 
 		Connection connection = Database.getConnection();
 
 		try {
 
 			Statement statement = connection.createStatement();
-			statement.executeUpdate("insert into proizvodi (barkod, cijena, naziv) values (" +
-					"'" + p.getBarcode() + "', " 
-					+ "'" + p.getPrice() + "', " 
-					+ "'" + p.getName() + "')");
-			
-			
+			statement.executeUpdate("insert into proizvodi (barkod, cijena, naziv) values ("
+							+ "'" + p.getBarcode() + "', "
+							+ "'" + p.getPrice() + "', " 
+							+ "'" + p.getName() + "')");
+
 		} catch (SQLException e) {
-			System.out.println("Nisam uspio sacuvati proizvod u bazu.");
+			e.printStackTrace();
+			Notification.show("Nisam uspio dodati korisnika!");
 		}
 
 	}
@@ -97,4 +126,5 @@ public class Database {
 		System.out.println("Ucitali smo " + products.size() + " proizvoda");
 		return products;
 	}
+
 }

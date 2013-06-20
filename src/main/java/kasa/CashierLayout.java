@@ -1,5 +1,6 @@
 package kasa;
 
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -11,6 +12,9 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 public class CashierLayout extends VerticalLayout {
+
+	private static final long serialVersionUID = 3154074468832448512L;
+
 	private final CacheRegister kasa = new CacheRegister();
 
 	private double ukupnaCijena = 0;
@@ -104,7 +108,7 @@ public class CashierLayout extends VerticalLayout {
 
 		btnReset = new Button("Reset");
 		btnReset.addClickListener(reset_Listener);
-//		btnReset.setIcon(new ThemeResource("../res/ok.png"));
+		btnReset.setIcon(new ThemeResource("../res/ok.png"));
 
 		layoutSljedeciProizvod = new HorizontalLayout();
 

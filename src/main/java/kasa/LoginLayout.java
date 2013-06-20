@@ -11,8 +11,8 @@ public class LoginLayout extends VerticalLayout {
 
 	private static final long serialVersionUID = 6473455514509708020L;
 
-	private TextField username;
-	private PasswordField password;
+	private TextField txtUsername;
+	private PasswordField txtPassword;
 	private Button login;
 
 	private LoggedInListener listener;
@@ -27,8 +27,8 @@ public class LoginLayout extends VerticalLayout {
 	}
 
 	private void init() {
-		username = new TextField("Korisničko ime");
-		password = new PasswordField("Lozinka");
+		txtUsername = new TextField("Korisničko ime");
+		txtPassword = new PasswordField("Lozinka");
 		
 		login = new Button("Uloguj se");
 		login.addClickListener(new Button.ClickListener() {
@@ -40,13 +40,13 @@ public class LoginLayout extends VerticalLayout {
 			}
 		});
 		
-		addComponent(username);
-		addComponent(password);
+		addComponent(txtUsername);
+		addComponent(txtPassword);
 		addComponent(login);
 	}
 	
 	public void login() {
-		this.user = userService.login(username.getValue(), password.getValue());
+		this.user = userService.login(txtUsername.getValue(), txtPassword.getValue());
 	}
 	
 	public User getUser() {
