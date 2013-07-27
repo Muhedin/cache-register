@@ -26,28 +26,35 @@ public class AdministratorLayout extends HorizontalLayout {
 	private Button btnPotvrdiUnos;
 	private Table productsTable;
 	private int currentProductId;
-	
+
 	private Button btnDelete;
 
-	// Deklaracija komponenti za novog kasira
+	/**
+	 * Deklaracija komponenti za novog kasira
+	 */
 	private Button btnAddCashier;
 	private TextField txtCashierName;
 	private PasswordField txtCashierPassword;
+	private int currentUserId;
+	private Table usersTable;
 
+	
 	public AdministratorLayout() {
 		createComponents();
 
 		arrangeComponents();
 	}
 
-	// Kreiramo komponente koje ćemo prikazati na layoutu
+	/** 
+	 * Kreiramo komponente koje ćemo prikazati na layoutu, (glavni layout)
+	 */
 	private void createComponents() {
 		tabs = new TabSheet();
-
+		
 		VerticalLayout productsTab = createProductsLayout();
 		tabs.addTab(productsTab, "Proizvodi");
 
-		VerticalLayout cashierLayout = createCashierLayout();
+		VerticalLayout cashierLayout = createUsersLayout();
 		tabs.addTab(cashierLayout, "Kasiri");
 
 		tabs.setStyleName(Reindeer.TABSHEET_MINIMAL);
@@ -57,15 +64,43 @@ public class AdministratorLayout extends HorizontalLayout {
 		tabs.setHeight("100%");
 	}
 
-	private VerticalLayout createCashierLayout() {
-		VerticalLayout cashierLayout = new VerticalLayout();
+	
+	/**
+	 *  Kreiramo VerticalLayout na kojem prikazujemo komponente za unos novog korisnika i tabelu sa svim korinicima
+	 * @return
+	 */
+	private VerticalLayout createUsersLayout() {
+		VerticalLayout usersLayout = new VerticalLayout();
+		
+		usersTable = createUsersTable();
+		displayUsersFromDatabase();
 
-		// Komponente za kasira
-		txtCashierName = new TextField("Ime i prezime");
+		VerticalLayout addNewUserComponent = createAddNewUserComponent();
+
+		usersLayout.addComponent(usersTable);
+		usersLayout.addComponent(addNewUserComponent);
+
+		usersLayout.setSpacing(true);
+		usersLayout.setMargin(true);
+
+		return usersLayout;
+	}
+
+	private VerticalLayout createAddNewUserComponent() {
+
+		VerticalLayout cashierLayout = new VerticalLayout();
+		
+		/**
+		 *  Komponente za kasira
+		 */
+		txtCashierName = new TextField("Korisničko ime");
 		txtCashierPassword = new PasswordField("Lozinka");
 		btnAddCashier = new Button("Sačuvaj");
-
+		
+		
 		ClickListener dodajKasiraListener = new ClickListener() {
+
+			private static final long serialVersionUID = 7577030264993664896L;
 
 			@Override
 			public void buttonClick(ClickEvent event) {
@@ -87,19 +122,53 @@ public class AdministratorLayout extends HorizontalLayout {
 		cashierLayout.addComponent(txtCashierName);
 		cashierLayout.addComponent(txtCashierPassword);
 		cashierLayout.addComponent(btnAddCashier);
-
+		
+		
 		cashierLayout.setSpacing(true);
 		cashierLayout.setMargin(true);
-		
+
 		return cashierLayout;
 	}
 
+	/**
+	 *  Metoda kojom prikazujemo sve korisnike iz baze u tabelu
+	 */
+	private void displayUsersFromDatabase() {
+		usersTable.removeAllItems();
+
+		List<User> users = Database.findAllUsers();
+		currentUserId = 0;
+
+		/**
+		 *  iteriramo kroz listu
+		 */
+		for (User user : users) {
+			addToTable(user);
+		}
+
+		usersTable.refreshRowCache();
+	}
+
+	/**
+	 * Dodajemo korisnike u tabelu
+	 * @param user
+	 */
+	private void addToTable(User user) {
+		Object[] newItem = null;
+		newItem = new Object[] { user.getIme(), user.jeLiAdmin};
+		usersTable.addItem(newItem, currentUserId++);
+
+	}
+
+	/**
+	 * Kreiramo layout za proizvode
+	 * @return
+	 */
 	private VerticalLayout createProductsLayout() {
 		VerticalLayout productsLayout = new VerticalLayout();
 
 		productsTable = createProductsTable();
 		displayProductsFromDatabase();
-		
 
 		HorizontalLayout addNewProductComponent = createAddNewProductComponent();
 
@@ -112,7 +181,12 @@ public class AdministratorLayout extends HorizontalLayout {
 		return productsLayout;
 	}
 
+	/**
+	 *  Horizontalni layout na kojem prikazujemo komponente za unos novog proizvoda
+	 * @return
+	 */
 	private HorizontalLayout createAddNewProductComponent() {
+
 		HorizontalLayout addNewProductComponent = new HorizontalLayout();
 
 		txtBarkod = new TextField("Barkod");
@@ -154,16 +228,20 @@ public class AdministratorLayout extends HorizontalLayout {
 
 		addNewProductComponent.setSpacing(true);
 		addNewProductComponent.setMargin(true);
-		
+
 		return addNewProductComponent;
+
 	}
 
+	/**
+	 *  Metoda kojom prikazujemo sve proizvode iz baze
+	 */
 	private void displayProductsFromDatabase() {
 		productsTable.removeAllItems();
-		
+
 		List<Product> products = Database.findAllProducts();
 		currentProductId = 0;
-		
+
 		for (Product proizvod : products) {
 			addToTable(proizvod);
 		}
@@ -171,22 +249,47 @@ public class AdministratorLayout extends HorizontalLayout {
 		productsTable.refreshRowCache();
 	}
 
+	/**
+	 * Metoda kojom dodajemo proizvod u tablu
+	 * @param proizvod
+	 */
 	private void addToTable(Product proizvod) {
 		Object[] newItem = null;
 		newItem = new Object[] { proizvod.getBarcode(), proizvod.getName(), proizvod.getPrice() };
 		productsTable.addItem(newItem, currentProductId++);
-		
+
 	}
 
-	// Metoda u kojoj poredamo komponente na layoutu
+	/**
+	 *  Metoda kojom dodajemo komponente na layoutus
+	 */
 	private void arrangeComponents() {
 		addComponent(tabs);
-		
+
 		setSpacing(true);
 		setMargin(true);
 	}
 
-	// Kreiramo tabelu za prikaz proizvoda iz baze
+	/**
+	 *  Kreiramo tabelu za prikaz korisnika iz baze
+	 * @return
+	 */
+	private Table createUsersTable() {
+		Table table = new Table("");
+		table.setWidth("45%");
+
+		table.addContainerProperty("KORISNIK", String.class, null);
+		table.addContainerProperty("JE LI ADMIN", Boolean.class, null);
+		
+		table.setSelectable(true);
+		
+		return table;
+	}
+
+	/**
+	 *  Kreiramo tabelu za prikaz proizvoda iz baze
+	 * @return
+	 */
 	private Table createProductsTable() {
 		Table table = new Table("");
 		table.setWidth("43%");
@@ -195,6 +298,10 @@ public class AdministratorLayout extends HorizontalLayout {
 		table.addContainerProperty("Naziv", String.class, null);
 		table.addContainerProperty("Cijena", Double.class, null);
 
+		boolean a = true;
+		
+		table.setSelectable(a);
+		
 		return table;
 	}
 
@@ -206,7 +313,10 @@ public class AdministratorLayout extends HorizontalLayout {
 		Database.saveUser(kasir);
 	}
 
-	// Uzmi kasira
+	/**
+	 *  Uzmi kasira iz polja sa layouta
+	 * @return
+	 */
 	protected User getCashier() {
 
 		String txtImeKasira = null;
@@ -222,11 +332,15 @@ public class AdministratorLayout extends HorizontalLayout {
 			return null;
 		}
 
-		User kasir = new User(txtImeKasira, txtLozinka);
-		return kasir;
+		User cashier = new User(txtImeKasira, txtLozinka);
+		return cashier;
 
 	}
 
+	/**
+	 * Medota kojom uzimao vrijednosti iz polja sa forme prilikom dodavanja novog proizvoda
+	 * @return
+	 */
 	protected Product uzmiProizvod() {
 		int barkod;
 		String naziv;

@@ -8,12 +8,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.vaadin.ui.Notification;
-
 public class Database {
 	private static String connectionString = "jdbc:mysql://localhost:3306/pmfkasa";
-	private static String dbUsername = "kasir";
-	private static String dbPassword = "kasir";
+	private static String dbUsername = "root";
+	private static String dbPassword = "root";
 
 	public static Connection getConnection() {
 		Connection connection = null;
@@ -49,7 +47,7 @@ public class Database {
 					+ hash(user.getTxtPassword()) + ", "
 					+ "false)";
 			
-			System.out.println(query);
+//			System.out.println(query);
 			statement.executeUpdate(query);
 			
 		} catch (SQLException e) {
@@ -80,11 +78,56 @@ public class Database {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			Notification.show("Nisam uspio dodati korisnika!");
+			System.out.println("Nisam uspio dodati korisnika!");
 		}
 
 	}
 
+//------------------------------------------------------------------------------------------
+	
+	public static List<User> findAllUsers() {
+		List<User> users = new ArrayList<User>();
+		User user;
+		
+		String ime;
+		boolean admin;
+		
+		Connection connection = null;
+
+		try {
+			connection = Database.getConnection();
+
+			// Create a Statement class to execute the SQL statement
+			Statement stmt = connection.createStatement();
+
+			// Execute the SQL statement and get the results in a Resultset
+			ResultSet rs = stmt.executeQuery("select ime, admin from korisnici");
+
+			while (rs.next()) {
+				ime = rs.getString("ime");
+				admin = rs.getBoolean("admin");
+
+				user = new User(ime, admin);
+
+				users.add(user);
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			// Close the connection
+			Utilities.close(connection);
+		}
+		
+		System.out.println("Ucitali smo " + users.size() + " korisnika!");
+		
+		return users;
+	}
+//------------------------------------------------------------------------------------------
+	
+	//Statička medota kojom nalazimo sve proizvode u bazi
 	public static List<Product> findAllProducts() {
 		List<Product> products = new ArrayList<Product>();
 		Product product;
@@ -123,7 +166,7 @@ public class Database {
 			Utilities.close(connection);
 		}
 		
-		System.out.println("Ucitali smo " + products.size() + " proizvoda");
+		System.out.println("Ucitali smo " + products.size() + " proizvoda!");
 		return products;
 	}
 

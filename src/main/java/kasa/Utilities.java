@@ -5,11 +5,11 @@ import java.sql.SQLException;
 
 public class Utilities {
 
-	//Metoda koju pozivamo kada zelimo da zatvarimo konekciju 
-	public static void close(Connection konekcija) {
+	//Metoda koju pozivamo kada zelimo da zatvorimo konekciju 
+	public static void close(Connection connection) {
 		try {
-			if (konekcija != null) {
-				konekcija.close();
+			if (connection != null) {
+				connection.close();
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

@@ -1,11 +1,10 @@
 package kasa;
 
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Notification;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
 
 public class LoginLayout extends VerticalLayout {
 
@@ -33,6 +32,8 @@ public class LoginLayout extends VerticalLayout {
 		login = new Button("Uloguj se");
 		login.addClickListener(new Button.ClickListener() {
 			
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void buttonClick(ClickEvent event) {
 				login();
@@ -43,6 +44,11 @@ public class LoginLayout extends VerticalLayout {
 		addComponent(txtUsername);
 		addComponent(txtPassword);
 		addComponent(login);
+		
+		setSpacing(true);
+		setMargin(true);
+				
+		
 	}
 	
 	public void login() {

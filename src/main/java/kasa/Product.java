@@ -10,18 +10,17 @@ public class Product {
 	// cijena jednog proizvoda
 	private double price;
 
-	// Konstruktor
+	// Konstruktor koji koristimo kada kasir provude proizvod kroz kasu
 	public Product(int barcode, double quantity) {
 		this.barcode = barcode;
 		this.quantity = quantity;
 	}
 	
-	//Konstuktor kojeg koristimo za unos podataka u bazu
+	//Konstuktor koji koristimo za unos podataka u bazu
 	public Product(int barcode, String name, double price) {
 		this.barcode = barcode;
 		this.name = name;
 		this.price = price;
-		
 	}
 
 	public int getBarcode() {

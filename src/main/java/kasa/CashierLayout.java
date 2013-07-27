@@ -1,6 +1,5 @@
 package kasa;
 
-import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -17,7 +16,7 @@ public class CashierLayout extends VerticalLayout {
 
 	private final CacheRegister kasa = new CacheRegister();
 
-	private double ukupnaCijena = 0;
+	private double totalPrice = 0;
 
 	private Table spisakProizvodaTable;
 	private Integer idProizvodaUTabeli = 1;
@@ -30,13 +29,13 @@ public class CashierLayout extends VerticalLayout {
 
 	private Label lblTotal;
 
-	private Button btnSljedeciProizvod;
+	private Button btnNextProduct;
 	private Button btnReset;
 	
 	public CashierLayout() {
 		init();
 	}
-	
+	//dadajemo komponente na layout
 	protected void init() {
 		final VerticalLayout layoutSadrzaj = new VerticalLayout();
 
@@ -44,11 +43,10 @@ public class CashierLayout extends VerticalLayout {
 
 		kreirajLayoutSljedeciProizvod();
 
-		// layoutSadrzaj.addComponent(spisakProizvoda);
 		layoutSadrzaj.addComponent(spisakProizvodaTable);
-		layoutSadrzaj.addComponent(lblTotal);
 		layoutSadrzaj.addComponent(layoutSljedeciProizvod);
-
+		layoutSadrzaj.addComponent(lblTotal);
+		
 		layoutSadrzaj.setSpacing(true);
 		layoutSadrzaj.setMargin(true);
 
@@ -62,6 +60,8 @@ public class CashierLayout extends VerticalLayout {
 		lblTotal = new Label("TOTAL");
 
 		ClickListener sljedeci_Listener = new ClickListener() {
+
+			private static final long serialVersionUID = -6847940626074336716L;
 
 			@Override
 			public void buttonClick(ClickEvent event) {
@@ -78,11 +78,11 @@ public class CashierLayout extends VerticalLayout {
 
 					proizvod = kasa.izracunajCijenu(proizvod);
 
-					ukupnaCijena += proizvod.getTotalPrice();
+					totalPrice += proizvod.getTotalPrice();
 
 					dodajUTabelu(proizvod);
 
-					prikaziCijenu(ukupnaCijena);
+					prikaziCijenu(totalPrice);
 					
 					txtBarkod.setValue("");
 					txtKolicina.setValue("1");
@@ -93,57 +93,56 @@ public class CashierLayout extends VerticalLayout {
 
 		ClickListener reset_Listener = new ClickListener() {
 
+			private static final long serialVersionUID = 1411507883790762479L;
+
 			@Override
 			public void buttonClick(ClickEvent event) {
 
 				spisakProizvodaTable.removeAllItems();
-				ukupnaCijena = 0;
-				prikaziCijenu(ukupnaCijena);
+				totalPrice = 0;
+				prikaziCijenu(totalPrice);
 
 			}
 		};
 
-		btnSljedeciProizvod = new Button("SLJEDEĆI");
-		btnSljedeciProizvod.addClickListener(sljedeci_Listener);
+		btnNextProduct = new Button("SLJEDEĆI");
+		btnNextProduct.addClickListener(sljedeci_Listener);
 
 		btnReset = new Button("Reset");
 		btnReset.addClickListener(reset_Listener);
-		btnReset.setIcon(new ThemeResource("../res/ok.png"));
-
+		
 		layoutSljedeciProizvod = new HorizontalLayout();
-
 		layoutSljedeciProizvod.addComponent(txtBarkod);
 		layoutSljedeciProizvod.addComponent(txtKolicina);
 
-		layoutSljedeciProizvod.addComponent(btnSljedeciProizvod);
+		layoutSljedeciProizvod.addComponent(btnNextProduct);
 		layoutSljedeciProizvod.addComponent(btnReset);
 
 	}
 
 	protected void prikaziCijenu(double ukupnaCijena) {
-		lblTotal.setValue("Cijena je: " + ukupnaCijena + " KM");
-		
+		lblTotal.setValue("UKUPNO: " + ukupnaCijena + " KM");
+
 	}
 
+	//Dodajmo proizvode u tabelu
 	private void dodajUTabelu(Product proizvod) {
 
-		spisakProizvodaTable.addItem(
-				new Object[] { proizvod.getBarcode(), proizvod.getName(),
-						proizvod.getQuantity(), proizvod.getTotalPrice() },
+		spisakProizvodaTable.addItem(new Object[] { proizvod.getBarcode(), proizvod.getName(),proizvod.getQuantity(), 
+				proizvod.getTotalPrice() },
 				idProizvodaUTabeli++);
 
 		spisakProizvodaTable.refreshRowCache();
 	}
 
+	//Kreiramo spisak proizvoda
 	private void kreirajSpisakProizvoda() {
 
 		spisakProizvodaTable = new Table("");
 		spisakProizvodaTable.setWidth("33%");
-		spisakProizvodaTable
-				.addContainerProperty("Barkod", Integer.class, null);
+		spisakProizvodaTable.addContainerProperty("Barkod", Integer.class, null);
 		spisakProizvodaTable.addContainerProperty("Naziv", String.class, null);
-		spisakProizvodaTable.addContainerProperty("Količina", Double.class,
-				null);
+		spisakProizvodaTable.addContainerProperty("Količina", Double.class, null);
 		spisakProizvodaTable.addContainerProperty("Cijena", Double.class, null);
 
 	}

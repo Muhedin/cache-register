@@ -7,6 +7,7 @@ import java.sql.Statement;
 
 public class CacheRegister {
 
+	//Računamo ukuonu cijenu proizvoda
 	public Product izracunajCijenu(Product proizvod) {
 		double totalPrice = 0;
 
@@ -19,7 +20,6 @@ public class CacheRegister {
 		return proizvod;
 	}
 
-	// TODO Refaktorisati
 	private String getNameForProduct(int barcode) {
 		Connection connection = null;
 		String name = null;
