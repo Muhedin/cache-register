@@ -68,13 +68,13 @@ public class Database {
 
 		Connection connection = Database.getConnection();
 
+		String queryString = String.format("insert into proizvodi (barkod, cijena, naziv, akcija) " 
+					+ " values (%d, %f, '%s', %b)", 
+					p.getBarcode(), p.getPrice(), p.getName(), p.isLowPrice());
 		try {
 
 			Statement statement = connection.createStatement();
-			statement.executeUpdate("insert into proizvodi (barkod, cijena, naziv) values ("
-							+ "'" + p.getBarcode() + "', "
-							+ "'" + p.getPrice() + "', " 
-							+ "'" + p.getName() + "')");
+			statement.executeUpdate(queryString);
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -135,6 +135,7 @@ public class Database {
 		int barcode;
 		String name;
 		double price;
+		boolean isLowPrice;
 		
 		Connection connection = null;
 
@@ -151,8 +152,9 @@ public class Database {
 				barcode = rs.getInt("barkod");
 				name = rs.getString("naziv");
 				price = rs.getDouble("cijena");
+				isLowPrice = rs.getBoolean("akcija");
 				
-				product = new Product(barcode, name, price);
+				product = new Product(barcode, name, price, isLowPrice);
 				
 				products.add(product);
 			}
@@ -174,8 +176,8 @@ public class Database {
 	public static void updateProduct(int barcode, Product product) {
 		Connection connection = Database.getConnection();
 
-		String queryString = String.format("update proizvodi set barkod = %d, cijena = %f, naziv = '%s' where barkod = %d", 
-				product.getBarcode(), product.getPrice(), product.getName(), barcode);
+		String queryString = String.format("update proizvodi set barkod = %d, cijena = %f, naziv = '%s', akcija = %b where barkod = %d", 
+				product.getBarcode(), product.getPrice(), product.getName(), product.isLowPrice(), barcode);
 		
 		try {
 

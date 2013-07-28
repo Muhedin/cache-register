@@ -9,6 +9,7 @@ public class Product {
 	
 	// cijena jednog proizvoda
 	private double price;
+	private boolean isLowPrice;
 
 	// Konstruktor koji koristimo kada kasir provude proizvod kroz kasu
 	public Product(int barcode, double quantity) {
@@ -16,11 +17,11 @@ public class Product {
 		this.quantity = quantity;
 	}
 	
-	//Konstuktor koji koristimo za unos podataka u bazu
-	public Product(int barcode, String name, double price) {
+	public Product(int barcode, String name, double price, boolean isLowPrice) {
 		this.barcode = barcode;
 		this.name = name;
 		this.price = price;
+		this.isLowPrice = isLowPrice;
 	}
 
 	public int getBarcode() {
@@ -63,7 +64,16 @@ public class Product {
 		this.price = price;
 	}
 
-	public static Product newProduct(String barcodeString, String name, String priceString) {
+	public boolean isLowPrice() {
+		return isLowPrice;
+	}
+
+	public void setLowPrice(boolean isLowPrice) {
+		this.isLowPrice = isLowPrice;
+	}
+
+	public static Product newProduct(String barcodeString, String name, 
+			String priceString, boolean isLowPrice) {
 		int barcode;
 		double price;
 
@@ -79,7 +89,7 @@ public class Product {
 			return null;
 		}
 
-		Product proizvod = new Product(barcode, name, price);
+		Product proizvod = new Product(barcode, name, price, isLowPrice);
 
 		return proizvod;
 	}

@@ -8,6 +8,7 @@ import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Notification;
@@ -28,6 +29,8 @@ public class AdministratorLayout extends HorizontalLayout {
 	
 	private static final String PRICE = "Cijena";
 
+	private static final String IS_LOW_PRICE = "Akcija";
+
 	private TabSheet tabs;
 
 	/*
@@ -36,6 +39,7 @@ public class AdministratorLayout extends HorizontalLayout {
 	private TextField txtBarcode;
 	private TextField txtName;
 	private TextField txtPrice;
+	private CheckBox chkLowPrice;
 	private Button btnSaveProduct;
 	
 	/*
@@ -44,6 +48,7 @@ public class AdministratorLayout extends HorizontalLayout {
 	private TextField txtEditBarcode;
 	private TextField txtEditName;
 	private TextField txtEditPrice;
+	private CheckBox chkEditLowPrice;
 	private Button btnUpdateProduct;
 	private Button btnDeleteProduct;
 	
@@ -197,7 +202,7 @@ public class AdministratorLayout extends HorizontalLayout {
 
 		productsLayout.addComponent(productsTable);
 		
-		productsLayout.addComponent(createUpdateDeleteProductComponent());
+		productsLayout.addComponent(createUpdateDeleteComponent());
 		
 		productsLayout.addComponent(createAddNewProductComponent());
 
@@ -207,20 +212,13 @@ public class AdministratorLayout extends HorizontalLayout {
 		return productsLayout;
 	}
 
-	private Component createUpdateDeleteProductComponent() {
-		VerticalLayout updateDelete = new VerticalLayout();
-		
-		updateDelete.addComponent(createUpdateDeleteComponent());
-		
-		return updateDelete;
-	}
-
 	private Component createUpdateDeleteComponent() {
 		HorizontalLayout update = new HorizontalLayout();
 		
 		txtEditBarcode = new TextField("Barkod");
 		txtEditName = new TextField("Naziv");
 		txtEditPrice = new TextField("Cijena");
+		chkEditLowPrice = new CheckBox();
 		btnUpdateProduct = new Button("Ažuriraj proizvod");
 		btnDeleteProduct = new Button("Obriši proizvod");
 		
@@ -250,6 +248,7 @@ public class AdministratorLayout extends HorizontalLayout {
 		update.addComponent(txtEditBarcode);
 		update.addComponent(txtEditName);
 		update.addComponent(txtEditPrice);
+		update.addComponent(chkEditLowPrice);
 		update.addComponent(btnUpdateProduct);
 		update.addComponent(btnDeleteProduct);
 		
@@ -263,7 +262,8 @@ public class AdministratorLayout extends HorizontalLayout {
 		return Product.newProduct(
 				txtEditBarcode.getValue(),
 				txtEditName.getValue(),
-				txtEditPrice.getValue()
+				txtEditPrice.getValue(), 
+				chkEditLowPrice.getValue()
 				);
 	}
 
@@ -278,6 +278,9 @@ public class AdministratorLayout extends HorizontalLayout {
 		txtBarcode = new TextField(BARCODE);
 		txtName = new TextField(NAME);
 		txtPrice = new TextField(PRICE);
+		chkLowPrice = new CheckBox();
+		chkLowPrice = new CheckBox("Akcija");
+		
 		btnSaveProduct = new Button("Dodaj proizvod");
 
 		ClickListener potvrdiUnoslistener = new ClickListener() {
@@ -308,6 +311,7 @@ public class AdministratorLayout extends HorizontalLayout {
 		addNewProductComponent.addComponent(txtBarcode);
 		addNewProductComponent.addComponent(txtName);
 		addNewProductComponent.addComponent(txtPrice);
+		addNewProductComponent.addComponent(chkLowPrice);
 		addNewProductComponent.addComponent(btnSaveProduct);
 
 		addNewProductComponent.setSpacing(true);
@@ -335,11 +339,12 @@ public class AdministratorLayout extends HorizontalLayout {
 
 	/**
 	 * Metoda kojom dodajemo proizvod u tablu
-	 * @param proizvod
+	 * @param product
 	 */
-	private void addToTable(Product proizvod) {
+	private void addToTable(Product product) {
 		Object[] newItem = null;
-		newItem = new Object[] { proizvod.getBarcode(), proizvod.getName(), proizvod.getPrice() };
+		newItem = new Object[] { product.getBarcode(), product.getName(), 
+				product.getPrice(), product.isLowPrice() };
 		productsTable.addItem(newItem, currentProductId++);
 
 	}
@@ -381,7 +386,8 @@ public class AdministratorLayout extends HorizontalLayout {
 		table.addContainerProperty(BARCODE, Integer.class, null);
 		table.addContainerProperty(NAME, String.class, null);
 		table.addContainerProperty(PRICE, Double.class, null);
-
+		table.addContainerProperty(IS_LOW_PRICE, Boolean.class, null);
+		
 		table.setSelectable(true);
 		table.addItemClickListener(new ItemClickListener() {
 			
@@ -440,7 +446,11 @@ public class AdministratorLayout extends HorizontalLayout {
 	 * @return
 	 */
 	protected Product getProduct() {
-		return Product.newProduct(txtBarcode.getValue(), txtName.getValue(), txtPrice.getValue());
+		return Product.newProduct(
+				txtBarcode.getValue(), 
+				txtName.getValue(), 
+				txtPrice.getValue(),
+				chkLowPrice.getValue());
 	}
 
 }
