@@ -63,4 +63,25 @@ public class Product {
 		this.price = price;
 	}
 
+	public static Product newProduct(String barcodeString, String name, String priceString) {
+		int barcode;
+		double price;
+
+		try {
+			barcode = Integer.valueOf(barcodeString);
+			price = Double.valueOf(priceString);
+
+			if (barcode <= 0 || price <= 0) {
+				return null;
+			}
+
+		} catch (NumberFormatException e) {
+			return null;
+		}
+
+		Product proizvod = new Product(barcode, name, price);
+
+		return proizvod;
+	}
+
 }

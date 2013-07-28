@@ -170,4 +170,41 @@ public class Database {
 		return products;
 	}
 
+
+	public static void updateProduct(int barcode, Product product) {
+		Connection connection = Database.getConnection();
+
+		String queryString = String.format("update proizvodi set barkod = %d, cijena = %f, naziv = '%s' where barkod = %d", 
+				product.getBarcode(), product.getPrice(), product.getName(), barcode);
+		
+		try {
+
+			Statement statement = connection.createStatement();
+			statement.executeUpdate(queryString);
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.err.println("Nisam uspio ažurirati proizvod.");
+		}
+		
+	}
+
+
+	public static void deleteProduct(int barcode) {
+		Connection connection = Database.getConnection();
+
+		String queryString = String.format("delete from proizvodi where barkod = %d", barcode);
+		
+		try {
+
+			Statement statement = connection.createStatement();
+			statement.executeUpdate(queryString);
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.err.println("Nisam uspio obrisati proizvod.");
+		}
+		
+	}
+
 }

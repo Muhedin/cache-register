@@ -2,9 +2,13 @@ package kasa;
 
 import java.util.List;
 
+import com.vaadin.data.Item;
+import com.vaadin.event.ItemClickEvent;
+import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.PasswordField;
@@ -18,16 +22,36 @@ public class AdministratorLayout extends HorizontalLayout {
 
 	private static final long serialVersionUID = -8222256930467387941L;
 
+	private static final String BARCODE = "Barkod";
+
+	private static final String NAME = "Naziv";
+	
+	private static final String PRICE = "Cijena";
+
 	private TabSheet tabs;
 
-	private TextField txtBarkod;
-	private TextField txtNaziv;
-	private TextField txtCijena;
-	private Button btnPotvrdiUnos;
+	/*
+	 * Adding a new product
+	 */
+	private TextField txtBarcode;
+	private TextField txtName;
+	private TextField txtPrice;
+	private Button btnSaveProduct;
+	
+	/*
+	 * Editing an existing product
+	 */
+	private TextField txtEditBarcode;
+	private TextField txtEditName;
+	private TextField txtEditPrice;
+	private Button btnUpdateProduct;
+	private Button btnDeleteProduct;
+	
 	private Table productsTable;
+	
+	// TODO Possible duplication?
 	private int currentProductId;
-
-	private Button btnDelete;
+	private int currentlySelectedBarcode;
 
 	/**
 	 * Deklaracija komponenti za novog kasira
@@ -165,20 +189,82 @@ public class AdministratorLayout extends HorizontalLayout {
 	 * @return
 	 */
 	private VerticalLayout createProductsLayout() {
+		
 		VerticalLayout productsLayout = new VerticalLayout();
 
 		productsTable = createProductsTable();
 		displayProductsFromDatabase();
 
-		HorizontalLayout addNewProductComponent = createAddNewProductComponent();
-
 		productsLayout.addComponent(productsTable);
-		productsLayout.addComponent(addNewProductComponent);
+		
+		productsLayout.addComponent(createUpdateDeleteProductComponent());
+		
+		productsLayout.addComponent(createAddNewProductComponent());
 
 		productsLayout.setSpacing(true);
 		productsLayout.setMargin(true);
 		
 		return productsLayout;
+	}
+
+	private Component createUpdateDeleteProductComponent() {
+		VerticalLayout updateDelete = new VerticalLayout();
+		
+		updateDelete.addComponent(createUpdateDeleteComponent());
+		
+		return updateDelete;
+	}
+
+	private Component createUpdateDeleteComponent() {
+		HorizontalLayout update = new HorizontalLayout();
+		
+		txtEditBarcode = new TextField("Barkod");
+		txtEditName = new TextField("Naziv");
+		txtEditPrice = new TextField("Cijena");
+		btnUpdateProduct = new Button("Ažuriraj proizvod");
+		btnDeleteProduct = new Button("Obriši proizvod");
+		
+		btnUpdateProduct.addClickListener(new ClickListener() {
+			
+			private static final long serialVersionUID = -1667346468248459578L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				Database.updateProduct(currentlySelectedBarcode, getUpdatedProduct());
+				displayProductsFromDatabase();
+				
+			}
+		});
+		
+		btnDeleteProduct.addClickListener(new ClickListener() {
+			
+			private static final long serialVersionUID = -993282455122723438L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				Database.deleteProduct(currentlySelectedBarcode);
+				displayProductsFromDatabase();
+			}
+		});
+		
+		update.addComponent(txtEditBarcode);
+		update.addComponent(txtEditName);
+		update.addComponent(txtEditPrice);
+		update.addComponent(btnUpdateProduct);
+		update.addComponent(btnDeleteProduct);
+		
+		update.setSpacing(true);
+		update.setMargin(true);
+		
+		return update;
+	}
+
+	protected Product getUpdatedProduct() {
+		return Product.newProduct(
+				txtEditBarcode.getValue(),
+				txtEditName.getValue(),
+				txtEditPrice.getValue()
+				);
 	}
 
 	/**
@@ -189,11 +275,10 @@ public class AdministratorLayout extends HorizontalLayout {
 
 		HorizontalLayout addNewProductComponent = new HorizontalLayout();
 
-		txtBarkod = new TextField("Barkod");
-		txtNaziv = new TextField("Naziv");
-		txtCijena = new TextField("Cijena");
-		btnPotvrdiUnos = new Button("Dodaj proizvod");
-		btnDelete = new Button("Izbriši");
+		txtBarcode = new TextField(BARCODE);
+		txtName = new TextField(NAME);
+		txtPrice = new TextField(PRICE);
+		btnSaveProduct = new Button("Dodaj proizvod");
 
 		ClickListener potvrdiUnoslistener = new ClickListener() {
 
@@ -203,13 +288,13 @@ public class AdministratorLayout extends HorizontalLayout {
 			public void buttonClick(ClickEvent event) {
 				System.out.println("Dodajem proizvod u bazu");
 
-				Product proizvod = uzmiProizvod();
+				Product proizvod = getProduct();
 
 				if (proizvod != null) {
 					saveProduct(proizvod);
-					txtBarkod.setValue("");
-					txtNaziv.setValue("");
-					txtCijena.setValue("");
+					txtBarcode.setValue("");
+					txtName.setValue("");
+					txtPrice.setValue("");
 					displayProductsFromDatabase();
 				} else {
 					Notification.show("Podaci nisu validni!");
@@ -218,13 +303,12 @@ public class AdministratorLayout extends HorizontalLayout {
 			}
 		};
 
-		btnPotvrdiUnos.addClickListener(potvrdiUnoslistener);
+		btnSaveProduct.addClickListener(potvrdiUnoslistener);
 
-		addNewProductComponent.addComponent(txtBarkod);
-		addNewProductComponent.addComponent(txtNaziv);
-		addNewProductComponent.addComponent(txtCijena);
-		addNewProductComponent.addComponent(btnPotvrdiUnos);
-		addNewProductComponent.addComponent(btnDelete);
+		addNewProductComponent.addComponent(txtBarcode);
+		addNewProductComponent.addComponent(txtName);
+		addNewProductComponent.addComponent(txtPrice);
+		addNewProductComponent.addComponent(btnSaveProduct);
 
 		addNewProductComponent.setSpacing(true);
 		addNewProductComponent.setMargin(true);
@@ -294,23 +378,37 @@ public class AdministratorLayout extends HorizontalLayout {
 		Table table = new Table("");
 		table.setWidth("43%");
 
-		table.addContainerProperty("Barkod", Integer.class, null);
-		table.addContainerProperty("Naziv", String.class, null);
-		table.addContainerProperty("Cijena", Double.class, null);
+		table.addContainerProperty(BARCODE, Integer.class, null);
+		table.addContainerProperty(NAME, String.class, null);
+		table.addContainerProperty(PRICE, Double.class, null);
 
-		boolean a = true;
-		
-		table.setSelectable(a);
+		table.setSelectable(true);
+		table.addItemClickListener(new ItemClickListener() {
+			
+			private static final long serialVersionUID = 1404317452366005133L;
+
+			@Override
+			public void itemClick(ItemClickEvent event) {
+				currentlySelectedBarcode = (Integer) event.getItem().getItemProperty(BARCODE).getValue();
+				fillEditFields(event.getItem());
+			}
+		});
 		
 		return table;
 	}
 
-	protected void saveProduct(Product proizvod) {
-		Database.saveProduct(proizvod);
+	protected void fillEditFields(Item item) {
+		txtEditBarcode.setValue(String.valueOf(item.getItemProperty(BARCODE).getValue()));
+		txtEditName.setValue(String.valueOf(item.getItemProperty(NAME).getValue()));
+		txtEditPrice.setValue(String.valueOf(item.getItemProperty(PRICE).getValue()));
 	}
 
-	protected void saveCashier(User kasir) {
-		Database.saveUser(kasir);
+	protected void saveProduct(Product product) {
+		Database.saveProduct(product);
+	}
+
+	protected void saveCashier(User cashier) {
+		Database.saveUser(cashier);
 	}
 
 	/**
@@ -319,12 +417,12 @@ public class AdministratorLayout extends HorizontalLayout {
 	 */
 	protected User getCashier() {
 
-		String txtImeKasira = null;
-		String txtLozinka = null;
+		String cashierName = null;
+		String password = null;
 		try {
-			txtImeKasira = txtCashierName.getValue();
-			txtLozinka = txtCashierPassword.getValue();
-			if (txtImeKasira == "" && txtLozinka == "") {
+			cashierName = txtCashierName.getValue();
+			password = txtCashierPassword.getValue();
+			if (cashierName == "" && password == "") {
 				return null;
 			}
 
@@ -332,7 +430,7 @@ public class AdministratorLayout extends HorizontalLayout {
 			return null;
 		}
 
-		User cashier = new User(txtImeKasira, txtLozinka);
+		User cashier = new User(cashierName, password);
 		return cashier;
 
 	}
@@ -341,28 +439,8 @@ public class AdministratorLayout extends HorizontalLayout {
 	 * Medota kojom uzimao vrijednosti iz polja sa forme prilikom dodavanja novog proizvoda
 	 * @return
 	 */
-	protected Product uzmiProizvod() {
-		int barkod;
-		String naziv;
-		double cijena;
-
-		naziv = txtNaziv.getValue();
-
-		try {
-			barkod = Integer.valueOf(txtBarkod.getValue());
-			cijena = Double.valueOf(txtCijena.getValue());
-
-			if (barkod <= 0 || cijena <= 0) {
-				return null;
-			}
-
-		} catch (NumberFormatException e) {
-			return null;
-		}
-
-		Product proizvod = new Product(barkod, naziv, cijena);
-
-		return proizvod;
+	protected Product getProduct() {
+		return Product.newProduct(txtBarcode.getValue(), txtName.getValue(), txtPrice.getValue());
 	}
 
 }
